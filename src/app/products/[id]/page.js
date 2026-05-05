@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import ProductReviews from '../../components/products/ProductReviews';
 import Link from 'next/link'
 
 const apiFetch = (url, options = {}) => {
@@ -293,6 +294,12 @@ export default function ProductDetailPage() {
             </div>
           </div>
         )}
+
+
+{/* Product Reviews Section */}
+<div className="mt-16 pt-12 border-t border-gray-200">
+  <ProductReviews productId={params.id} productName={product?.name} />
+</div>
       </div>
     </div>
   )
