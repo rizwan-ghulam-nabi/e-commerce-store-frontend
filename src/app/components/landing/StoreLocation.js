@@ -8,7 +8,7 @@ export default function StoreLocation() {
   const [isVisible, setIsVisible] = useState(false);
   
   const location = {
-    name: 'RS-Commerce',
+    name: 'SwiftCart.PK',
     address: 'Near Super Ideal bakers',
     city: 'Faisalabad, Pakistan',
     phone: '+92 3037972606',
