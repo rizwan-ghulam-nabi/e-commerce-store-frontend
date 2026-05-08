@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -55,6 +56,9 @@ export default function ProductReviews({ productId, productName }) {
       const data = await response.json();
       
       const reviewsData = data.data?.reviews || data.reviews || [];
+      console.log('📝 Product Reviews Data:', reviewsData);
+      console.log('📝 First review user:', reviewsData[0]?.user);
+      
       setReviews(reviewsData);
       calculateStats(reviewsData);
       
@@ -62,12 +66,15 @@ export default function ProductReviews({ productId, productName }) {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const userResponse = await fetch(`${API_BASE}/reviews/user/${productId}`, {
+          // This endpoint might be wrong - fix it
+          const userResponse = await fetch(`${API_BASE}/reviews/check/${productId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (userResponse.ok) {
             const userData = await userResponse.json();
-            setUserReview(userData.data);
+            if (userData.data?.existingReview) {
+              setUserReview(userData.data.existingReview);
+            }
           }
         } catch (err) {
           console.log('No user review found');
@@ -147,6 +154,20 @@ export default function ProductReviews({ productId, productName }) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // ✅ FIXED: Function to get username from review
+  const getReviewUserName = (review) => {
+    if (review.user) {
+      if (typeof review.user === 'object') {
+        // Populated user object
+        return review.user.username || review.user.name || 'Customer';
+      } else if (typeof review.user === 'string') {
+        // Just an ID - show placeholder
+        return 'Customer';
+      }
+    }
+    return 'Customer';
   };
 
   const renderStars = (rating, size = 'sm') => {
@@ -282,7 +303,7 @@ export default function ProductReviews({ productId, productName }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block  text-sm font-medium text-gray-700 mb-2">
                   Review Title (Optional)
                 </label>
                 <input
@@ -291,7 +312,7 @@ export default function ProductReviews({ productId, productName }) {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Summarize your experience"
                   maxLength="100"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 />
               </div>
 
@@ -305,7 +326,7 @@ export default function ProductReviews({ productId, productName }) {
                   rows="4"
                   required
                   placeholder="What did you like or dislike about this product?"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">Minimum 10 characters</p>
               </div>
@@ -349,44 +370,50 @@ export default function ProductReviews({ productId, productName }) {
           </div>
         )}
         
-        {reviews.filter(r => !userReview || r._id !== userReview._id).map((review, index) => (
-          <motion.div
-            key={review._id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className="border-b border-gray-100 last:border-0 pb-6 last:pb-0"
-          >
-            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {getInitials(review.user?.username || review.user?.name || 'User')}
-                </div>
-                <div>
-                  <span className="font-medium text-gray-900">
-                    {review.user?.username || review.user?.name || 'Anonymous'}
-                  </span>
-                  {review.isVerifiedPurchase && (
-                    <span className="ml-2 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                      Verified Purchase
+        {reviews.filter(r => !userReview || r._id !== userReview._id).map((review, index) => {
+          // ✅ FIXED: Get username properly
+          const userName = getReviewUserName(review);
+          
+          return (
+            <motion.div
+              key={review._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="border-b border-gray-100 last:border-0 pb-6 last:pb-0"
+            >
+              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {getInitials(userName)}
+                  </div>
+                  <div>
+                    {/* ✅ FIXED: Display actual username, not "Anonymous" */}
+                    <span className="font-medium text-gray-900">
+                      @{userName}
                     </span>
-                  )}
+                    {review.isVerifiedPurchase && (
+                      <span className="ml-2 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        Verified Purchase
+                      </span>
+                    )}
+                  </div>
                 </div>
+                <span className="text-xs text-gray-500">
+                  {formatDate(review.createdAt)}
+                </span>
               </div>
-              <span className="text-xs text-gray-500">
-                {formatDate(review.createdAt)}
-              </span>
-            </div>
-            
-            <div className="mb-2">{renderStars(review.rating)}</div>
-            
-            {review.title && (
-              <h4 className="font-semibold text-gray-900 mb-1">{review.title}</h4>
-            )}
-            
-            <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
-          </motion.div>
-        ))}
+              
+              <div className="mb-2">{renderStars(review.rating)}</div>
+              
+              {review.title && (
+                <h4 className="font-semibold text-gray-900 mb-1">{review.title}</h4>
+              )}
+              
+              <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
+            </motion.div>
+          );
+        })}
       </div>
 
       {stats.total === 0 && !userReview && (
@@ -404,3 +431,4 @@ export default function ProductReviews({ productId, productName }) {
     </div>
   );
 }
+

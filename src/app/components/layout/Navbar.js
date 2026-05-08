@@ -1,595 +1,184 @@
-
-// 'use client';
-
-// import { useState, useEffect, useRef, useCallback } from 'react';
-// import Link from 'next/link';
-// import { useRouter, usePathname } from 'next/navigation';
-// import { useCategoriesData } from "../../../hooks/useCategoriesData"
-
-// const cache = {
-//   cart: null,
-//   wishlist: null,
-//   setCart(data) { this.cart = { data, timestamp: Date.now() }; },
-//   getCart() {
-//     if (this.cart && Date.now() - this.cart.timestamp < 2 * 60 * 1000) return this.cart.data;
-//     return null;
-//   },
-//   setWishlist(data) { this.wishlist = { data, timestamp: Date.now() }; },
-//   getWishlist() {
-//     if (this.wishlist && Date.now() - this.wishlist.timestamp < 2 * 60 * 1000) return this.wishlist.data;
-//     return null;
-//   }
-// };
-
-// function AnimatedLogo() {
-//   return (
-//     <div className="flex items-center gap-2 group">
-//       <div className="relative w-9 h-9 lg:w-10 lg:h-10 flex-shrink-0 flex items-center justify-center">
-//         <svg className="w-full h-full" style={{ animation: 'spin-slow 4s linear infinite' }} viewBox="0 0 40 40">
-//           {[...Array(6)].map((_, i) => (
-//             <ellipse key={i} cx="20" cy="10" rx="6" ry="11" fill="url(#petalGradient)" transform={`rotate(${i * 60} 20 20)`} opacity="0.9" />
-//           ))}
-//           <defs>
-//             <linearGradient id="petalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-//               <stop offset="0%" stopColor="#ff006e" /><stop offset="50%" stopColor="#8338ec" /><stop offset="100%" stopColor="#3a86ff" />
-//             </linearGradient>
-//           </defs>
-//         </svg>
-//         <div className="absolute w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full" style={{ background: 'radial-gradient(circle, #ff006e, #8338ec)', boxShadow: '0 0 10px rgba(255, 0, 110, 0.8)' }} />
-//       </div>
-//       <span className="hidden sm:block text-lg lg:text-xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(90deg, #3a86ff, #8338ec, #ff006e, #fb5607)', backgroundSize: '300% 300%', animation: 'gradientShift 3s ease infinite' }}>SwiftCart.PK</span>
-//       <style jsx>{`
-//         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-//         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-//       `}</style>
-//     </div>
-//   );
-// }
-
-// export default function Navbar() {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
-//   const [user, setUser] = useState(null);
-//   const [cartCount, setCartCount] = useState(0);
-//   const [wishlistCount, setWishlistCount] = useState(0);
-//   const [showCategories, setShowCategories] = useState(false);
-//   const [scrollY, setScrollY] = useState(0);
-//   const [scrollDirection, setScrollDirection] = useState('up');
-//   const [searchSuggestions, setSearchSuggestions] = useState([]);
-//   const [showSuggestions, setShowSuggestions] = useState(false);
-//   const [mounted, setMounted] = useState(false);
-  
-//   const categoriesRef = useRef(null);
-//   const searchInputRef = useRef(null);
-//   const searchRef = useRef(null);
-//   const prevScrollY = useRef(0);
-//   const router = useRouter();
-//   const pathname = usePathname();
-
-//   const { categories, loading: loadingCategories, refetch: refetchCategories } = useCategoriesData();
-
-//   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-//   const API = {
-//     products: `${API_BASE}/products`,
-//     cart: `${API_BASE}/cart`,
-//     wishlist: `${API_BASE}/wishlist`,
-//     auth: { logout: `${API_BASE}/auth/logout` }
-//   };
-
-//   useEffect(() => { setMounted(true); }, []);
-
-//   const getCategoryIcon = (categoryName) => {
-//     const name = (categoryName || '').toLowerCase();
-//     if (name.includes('electronic')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>);
-//     if (name.includes('fashion') || name.includes('cloth')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>);
-//     if (name.includes('home') || name.includes('kitchen')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>);
-//     if (name.includes('beauty') || name.includes('makeup')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>);
-//     if (name.includes('sport') || name.includes('fitnes')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9.172 9.172a4 4 0 015.656 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>);
-//     if (name.includes('book')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>);
-//     return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>);
-//   };
-
-//   const categoryColors = [
-//     'from-blue-600 to-cyan-600', 'from-pink-600 to-rose-600', 'from-amber-600 to-orange-600',
-//     'from-purple-600 to-violet-600', 'from-emerald-600 to-green-600', 'from-red-600 to-pink-600',
-//     'from-indigo-600 to-blue-600', 'from-teal-600 to-emerald-600', 'from-orange-600 to-red-600',
-//     'from-cyan-600 to-teal-600',
-//   ];
-
-//   const fetchCartAndWishlist = useCallback(async () => {
-//     const token = localStorage.getItem('token');
-//     const isAuth = localStorage.getItem('isAuthenticated') === 'true';
-//     if (!isAuth || !token) {
-//       console.log('🔍 fetchCartAndWishlist: Not authenticated, skipping');
-//       return;
-//     }
-    
-//     console.log('🔍 fetchCartAndWishlist: Fetching cart and wishlist counts...');
-    
-//     try {
-//       const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-//       const [cartRes, wishlistRes] = await Promise.allSettled([
-//         fetch(API.cart, { credentials: 'include', headers }),
-//         fetch(API.wishlist, { credentials: 'include', headers }),
-//       ]);
-      
-//       if (cartRes.status === 'fulfilled' && cartRes.value.ok) {
-//         const cartData = await cartRes.value.json();
-//         const cartItems = cartData.data?.cart?.items || cartData.data?.items || cartData.cart?.items || [];
-//         if (Array.isArray(cartItems)) {
-//           const total = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
-//           console.log('🛒 Cart count updated:', total);
-//           setCartCount(total); 
-//           cache.setCart(total);
-//         }
-//       } else {
-//         console.log('❌ Cart fetch failed:', cartRes.status === 'fulfilled' ? cartRes.value.status : 'rejected');
-//       }
-      
-//       if (wishlistRes.status === 'fulfilled' && wishlistRes.value.ok) {
-//         const wishlistData = await wishlistRes.value.json();
-//         let items = wishlistData.data?.wishlist?.products || wishlistData.data?.wishlist || wishlistData.data || [];
-//         if (items && !Array.isArray(items) && items.products) items = items.products;
-//         if (Array.isArray(items)) { 
-//           console.log('❤️ Wishlist count updated:', items.length);
-//           setWishlistCount(items.length); 
-//           cache.setWishlist(items.length); 
-//         }
-//       } else {
-//         console.log('❌ Wishlist fetch failed:', wishlistRes.status === 'fulfilled' ? wishlistRes.value.status : 'rejected');
-//       }
-//     } catch (error) {
-//       console.error('❌ fetchCartAndWishlist error:', error);
-//     }
-//   }, [API.cart, API.wishlist]);
-
-//   const fetchSearchSuggestions = async (query) => {
-//     if (query.length < 2) { setSearchSuggestions([]); setShowSuggestions(false); return; }
-//     try {
-//       const response = await fetch(`${API.products}?search=${encodeURIComponent(query)}&limit=5`, { credentials: 'include' });
-//       if (response.ok) {
-//         const data = await response.json();
-//         const products = data.data?.products || data.products || [];
-//         setSearchSuggestions(Array.isArray(products) ? products.slice(0, 5) : []);
-//         setShowSuggestions(products.length > 0);
-//       }
-//     } catch (error) {}
-//   };
-
-//   const searchTimeoutRef = useRef(null);
-//   const handleSearchInput = (value) => {
-//     setSearchQuery(value);
-//     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-//     if (value.length >= 2) searchTimeoutRef.current = setTimeout(() => fetchSearchSuggestions(value), 300);
-//     else { setSearchSuggestions([]); setShowSuggestions(false); }
-//   };
-
-//   useEffect(() => {
-//     if (!mounted) return;
-//     const handleScroll = () => {
-//       const currentScrollY = window.scrollY;
-//       setScrollY(currentScrollY);
-//       if (currentScrollY > prevScrollY.current && currentScrollY > 80) {
-//         setScrollDirection('down'); setShowCategories(false); setShowSuggestions(false);
-//       } else if (currentScrollY < prevScrollY.current) { setScrollDirection('up'); }
-//       prevScrollY.current = currentScrollY;
-//     };
-//     window.addEventListener('scroll', handleScroll, { passive: true });
-//     return () => window.removeEventListener('scroll', handleScroll);
-//   }, [mounted]);
-
-//   useEffect(() => {
-//     if (!mounted) return;
-//     const checkAuth = () => {
-//       const isAuth = localStorage.getItem('isAuthenticated') === 'true';
-//       const token = localStorage.getItem('token');
-//       const userData = localStorage.getItem('userData');
-//       console.log('🔐 checkAuth:', { isAuth, hasToken: !!token, hasUserData: !!userData });
-//       setIsAuthenticated(isAuth && !!token);
-//       if (isAuth && token && userData) {
-//         try { setUser(JSON.parse(userData)); } catch (e) {}
-//         fetchCartAndWishlist();
-//       }
-//     };
-//     checkAuth();
-//     const handleCartUpdate = () => { 
-//       console.log('🛒 Cart updated event received!');
-//       cache.setCart(null); 
-//       cache.setWishlist(null); 
-//       fetchCartAndWishlist(); 
-//     };
-//     window.addEventListener('cartUpdated', handleCartUpdate);
-//     window.addEventListener('wishlistUpdated', handleCartUpdate);
-//     window.addEventListener('storage', (e) => { if (e.key === 'isAuthenticated' || e.key === 'userData') checkAuth(); });
-//     return () => {
-//       window.removeEventListener('cartUpdated', handleCartUpdate);
-//       window.removeEventListener('wishlistUpdated', handleCartUpdate);
-//     };
-//   }, [mounted, fetchCartAndWishlist]);
-
-//   useEffect(() => { 
-//     if (isOpen) setIsOpen(false);
-//     if (showCategories) setShowCategories(false);
-//     if (showSuggestions) setShowSuggestions(false);
-//   }, [pathname]);
-
-//   useEffect(() => {
-//     if (!mounted) return;
-//     const handleClickOutside = (event) => {
-//       if (categoriesRef.current && !categoriesRef.current.contains(event.target)) setShowCategories(false);
-//       if (searchRef.current && !searchRef.current.contains(event.target)) setShowSuggestions(false);
-//     };
-//     document.addEventListener('mousedown', handleClickOutside);
-//     return () => document.removeEventListener('mousedown', handleClickOutside);
-//   }, [mounted]);
-
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-//     if (searchQuery.trim()) {
-//       router.push(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
-//       setSearchQuery(''); setShowSuggestions(false); searchInputRef.current?.blur();
-//     }
-//   };
-
-//   const handleCategoryClick = (categoryId) => { router.push(`/products?category=${categoryId}`); setShowCategories(false); };
-//   const handleAllProducts = () => { router.push('/products'); setShowCategories(false); };
-
-//   const handleLogout = async () => {
-//     try { await fetch(API.auth.logout, { method: 'POST', credentials: 'include' }); } catch (error) {}
-//     localStorage.removeItem('isAuthenticated'); localStorage.removeItem('userData'); localStorage.removeItem('token');
-//     setIsAuthenticated(false); setUser(null); setCartCount(0); setWishlistCount(0);
-//     cache.setCart(null); cache.setWishlist(null);
-//     router.push('/');
-//   };
-
-//   const isScrolled = scrollY > 20;
-
-//   const getUserDisplayName = () => {
-//     if (user?.name) return user.name;
-//     if (user?.username) return user.username;
-//     if (user?.email) return user.email.split('@')[0];
-//     return 'User';
-//   };
-
-//   const getUserInitials = () => {
-//     const name = getUserDisplayName();
-//     const parts = name.split(' ');
-//     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-//     return name.substring(0, 2).toUpperCase();
-//   };
-
-//   if (!mounted) {
-//     return (
-//       <div className="h-16 lg:h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-transparent">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex items-center justify-between h-16 lg:h-20">
-//             <div className="flex items-center gap-3">
-//               <div className="w-10 h-10 lg:w-11 lg:h-11 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl"></div>
-//               <div className="w-32 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   const formattedCategories = Array.isArray(categories) ? categories.map((cat, index) => ({
-//     _id: cat._id || cat.id, name: cat.name || 'Uncategorized',
-//     icon: getCategoryIcon(cat.name), color: categoryColors[index % categoryColors.length],
-//     productCount: cat.productCount || 0,
-//   })) : [];
-
-//   return (
-//     <>
-//       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 transform ${scrollDirection === 'down' && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
-//         <div className={`backdrop-blur-xl border-b transition-all duration-500 ${isScrolled || isOpen ? 'bg-white/90 dark:bg-gray-900/90 shadow-lg border-gray-200/50 dark:border-gray-800/50' : 'bg-white/80 dark:bg-gray-900/80 border-transparent'}`}>
-//           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//             <div className="flex items-center justify-between h-16 lg:h-20">
-//               <Link href="/" className="flex-shrink-0 mr-6 lg:mr-10"><AnimatedLogo /></Link>
-
-//               <div className="hidden lg:flex items-center gap-1 xl:gap-4">
-//                 <div className="relative" ref={categoriesRef}>
-//                   <button onClick={() => setShowCategories(!showCategories)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${showCategories ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-//                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>Categories
-//                   </button>
-//                   {showCategories && (
-//                     <div className="absolute top-full left-0 mt-2 w-[640px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-//                       {loadingCategories ? (
-//                         <div className="p-8 text-center"><svg className="w-8 h-8 animate-spin text-violet-600 mx-auto" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>
-//                       ) : formattedCategories.length === 0 ? (
-//                         <div className="p-8 text-center"><div className="text-4xl mb-3">📂</div><p className="text-gray-500">No categories found</p></div>
-//                       ) : (
-//                         <>
-//                           <div className="grid grid-cols-2 gap-1 p-3 max-h-[400px] overflow-y-auto">
-//                             {formattedCategories.map((cat, idx) => (
-//                               <button key={cat._id || idx} onClick={() => handleCategoryClick(cat._id)} className="group/item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left w-full">
-//                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg group-hover/item:scale-110 transition-transform flex-shrink-0`}>{cat.icon}</div>
-//                                 <div className="flex-1 min-w-0"><div className="text-sm font-semibold text-gray-900 dark:text-white truncate">{cat.name}</div><div className="text-xs text-gray-500 mt-0.5">{cat.productCount > 0 ? `${cat.productCount} products` : 'Browse products'}</div></div>
-//                               </button>
-//                             ))}
-//                           </div>
-//                           <div className="border-t p-4 bg-gray-50/50 dark:bg-gray-800/50">
-//                             <button onClick={handleAllProducts} className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 transition">View All Products</button>
-//                           </div>
-//                         </>
-//                       )}
-//                     </div>
-//                   )}
-//                 </div>
-//                 <Link href="/products" className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${pathname === '/products' ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>All Products</Link>
-//                 <Link href="/products?sort=-discount" className="px-4 py-2.5 rounded-xl font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">Deals</Link>
-//               </div>
-
-//               <div ref={searchRef} className="hidden lg:flex items-center flex-1 max-w-md lg:max-w-lg xl:max-w-xl mx-4 lg:mx-6 xl:mx-8 relative">
-//                 <form onSubmit={handleSearch} className="w-full">
-//                   <div className="relative">
-//                     <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-//                     <input ref={searchInputRef} type="text" value={searchQuery} onChange={(e) => handleSearchInput(e.target.value)} onFocus={() => { if (searchSuggestions.length > 0) setShowSuggestions(true); }} placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800 border-2 border-transparent focus:border-violet-500 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 transition-all" />
-//                   </div>
-//                 </form>
-//                 {showSuggestions && searchSuggestions.length > 0 && (
-//                   <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border overflow-hidden z-50">
-//                     {searchSuggestions.map((item) => (
-//                       <Link key={item._id} href={`/products/${item._id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all" onClick={() => { setShowSuggestions(false); setSearchQuery(''); }}>
-//                         <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0"><svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div>
-//                         <div className="flex-1 min-w-0"><div className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.name}</div></div>
-//                         <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">PKR {((item.price || 0) * 280).toLocaleString()}</span>
-//                       </Link>
-//                     ))}
-//                   </div>
-//                 )}
-//               </div>
-
-//               <div className="flex items-center gap-1 sm:gap-2 ml-4 lg:ml-6">
-//                 <Link href="/wishlist" className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hidden sm:block">
-//                   <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-//                   {wishlistCount > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 bg-pink-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg px-1">{wishlistCount > 99 ? '99+' : wishlistCount}</span>}
-//                 </Link>
-//                 <Link href="/cart" className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-//                   <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-//                   {cartCount > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 bg-violet-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg px-1">{cartCount > 99 ? '99+' : cartCount}</span>}
-//                 </Link>
-                
-//                 {!isAuthenticated ? (
-//                   <Link href="/signup" className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium text-sm shadow-lg">Sign Up</Link>
-//                 ) : (
-//                   <div className="hidden sm:block relative group">
-//                     <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-//                       <div className="w-8 h-8 bg-violet-600 text-white rounded-lg flex items-center justify-center text-xs font-bold shadow-lg">{getUserInitials()}</div>
-//                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block max-w-[100px] truncate">{getUserDisplayName()}</span>
-//                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-//                     </button>
-//                     <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-50">
-//                       <div className="p-2">
-//                         <div className="px-4 py-3 border-b"><p className="text-sm font-semibold">{getUserDisplayName()}</p><p className="text-xs text-gray-500 truncate">{user?.email}</p></div>
-//                         <div className="py-1">
-//                           <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">Orders</Link>
-//                           <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">Profile</Link>
-//                         </div>
-//                         <div className="border-t my-1"></div>
-//                         <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out</button>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 )}
-                
-//                 <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-//                   {isOpen ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-//                   : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>}
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-
-//         {isOpen && (
-//           <>
-//             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm lg:hidden z-40" onClick={() => setIsOpen(false)} />
-//             <div className="lg:hidden fixed top-0 right-0 w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 h-full animate-in slide-in-from-right duration-300">
-//               <div className="flex items-center justify-between p-4 border-b">
-//                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
-//                 <button onClick={() => setIsOpen(false)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-//                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-//                 </button>
-//               </div>
-//               <div className="overflow-y-auto p-4 space-y-1" style={{ height: 'calc(100% - 65px)' }}>
-//                 {isAuthenticated && user && (
-//                   <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-50 dark:bg-gray-800 rounded-xl">
-//                     <div className="w-10 h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg">{getUserInitials()}</div>
-//                     <div><p className="font-semibold">{getUserDisplayName()}</p><p className="text-xs text-gray-500 truncate">{user.email}</p></div>
-//                   </div>
-//                 )}
-//                 <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase">Categories</div>
-//                 {loadingCategories ? <div className="flex justify-center py-8"><svg className="w-6 h-6 animate-spin text-violet-600" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>
-//                 : formattedCategories.map((cat) => (
-//                   <button key={cat._id} onClick={() => { handleCategoryClick(cat._id); setIsOpen(false); }} className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">
-//                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg`}>{cat.icon}</div>
-//                     <span className="font-medium">{cat.name}</span>
-//                   </button>
-//                 ))}
-//                 <div className="border-t my-2"></div>
-//                 <Link href="/products" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>All Products</Link>
-//                 <Link href="/deals" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Deals</Link>
-//                 <Link href="/wishlist" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Wishlist {wishlistCount > 0 && `(${wishlistCount})`}</Link>
-//                 <Link href="/cart" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Cart {cartCount > 0 && `(${cartCount})`}</Link>
-//                 <div className="border-t my-2"></div>
-//                 {!isAuthenticated ? (
-//                   <Link href="/signup" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white bg-violet-600 rounded-xl shadow-lg" onClick={() => setIsOpen(false)}>Sign Up / Sign In</Link>
-//                 ) : (
-//                   <>
-//                     <Link href="/orders" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Orders</Link>
-//                     <Link href="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Profile</Link>
-//                     <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out</button>
-//                   </>
-//                 )}
-//               </div>
-//             </div>
-//           </>
-//         )}
-//       </nav>
-//       <div className="h-16 lg:h-20" />
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 05/05/2026
-// the better version
-
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { useCategoriesData } from "../../../hooks/useCategoriesData"
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 
-const cache = {
-  cart: null,
-  wishlist: null,
-  setCart(data) { this.cart = { data, timestamp: Date.now() }; },
-  getCart() {
-    if (this.cart && Date.now() - this.cart.timestamp < 2 * 60 * 1000) return this.cart.data;
-    return null;
-  },
-  setWishlist(data) { this.wishlist = { data, timestamp: Date.now() }; },
-  getWishlist() {
-    if (this.wishlist && Date.now() - this.wishlist.timestamp < 2 * 60 * 1000) return this.wishlist.data;
-    return null;
-  }
-};
-
-function AnimatedLogo() {
-  return (
-    <div className="flex items-center gap-2 group">
-      <div className="relative w-9 h-9 lg:w-10 lg:h-10 flex-shrink-0 flex items-center justify-center">
-        <svg className="w-full h-full" style={{ animation: 'spin-slow 4s linear infinite' }} viewBox="0 0 40 40">
-          {[...Array(6)].map((_, i) => (
-            <ellipse key={i} cx="20" cy="10" rx="6" ry="11" fill="url(#petalGradient)" transform={`rotate(${i * 60} 20 20)`} opacity="0.9" />
-          ))}
-          <defs>
-            <linearGradient id="petalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ff006e" /><stop offset="50%" stopColor="#8338ec" /><stop offset="100%" stopColor="#3a86ff" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="absolute w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full" style={{ background: 'radial-gradient(circle, #ff006e, #8338ec)', boxShadow: '0 0 10px rgba(255, 0, 110, 0.8)' }} />
-      </div>
-      <span className="hidden sm:block text-lg lg:text-xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(90deg, #3a86ff, #8338ec, #ff006e, #fb5607)', backgroundSize: '300% 300%', animation: 'gradientShift 3s ease infinite' }}>SwiftCart.PK</span>
-      <style jsx>{`
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-      `}</style>
-    </div>
-  );
-}
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [showCategories, setShowCategories] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState('up');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mounted, setMounted] = useState(false);
-  
+  const [selectedSearchCategory, setSelectedSearchCategory] = useState("all");
+  const [selectedCategoryName, setSelectedCategoryName] = useState("All");
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [deliveryLocation, setDeliveryLocation] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('deliveryLocation');
+      return saved || "Pakistan";
+    }
+    return "Pakistan";
+  });
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "Faisalabad",
+    area: "",
+    landmark: "",
+    isDefault: true
+  });
+
   const categoriesRef = useRef(null);
   const searchInputRef = useRef(null);
   const searchRef = useRef(null);
-  const prevScrollY = useRef(0);
+  const locationRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
-  const { categories, loading: loadingCategories, refetch: refetchCategories } = useCategoriesData();
+  const popularCities = ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar", "Quetta", "Gujranwala", "Sialkot"];
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-  const API = {
-    products: `${API_BASE}/products`,
-    cart: `${API_BASE}/cart`,
-    wishlist: `${API_BASE}/wishlist`,
-    auth: { logout: `${API_BASE}/auth/logout` }
+  // Fetch categories directly from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await fetch(`${API_BASE}/categories`, {
+          credentials: "include",
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Categories API response:", data);
+          
+          // Extract categories from different possible response structures
+          let categoriesList = [];
+          if (data.data?.categories && Array.isArray(data.data.categories)) {
+            categoriesList = data.data.categories;
+          } else if (data.categories && Array.isArray(data.categories)) {
+            categoriesList = data.categories;
+          } else if (Array.isArray(data)) {
+            categoriesList = data;
+          } else if (data.data && Array.isArray(data.data)) {
+            categoriesList = data.data;
+          }
+          
+          console.log("Extracted categories:", categoriesList);
+          setCategories(categoriesList);
+        } else {
+          console.error("Failed to fetch categories:", response.status);
+          // Set some default categories for testing
+          setCategories([
+            { _id: "electronics", name: "Electronics", productCount: 0 },
+            { _id: "fashion", name: "Fashion", productCount: 0 },
+            { _id: "home", name: "Home & Kitchen", productCount: 0 },
+            { _id: "books", name: "Books", productCount: 0 },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        // Set default categories for testing
+        setCategories([
+          { _id: "electronics", name: "Electronics", productCount: 0 },
+          { _id: "fashion", name: "Fashion", productCount: 0 },
+          { _id: "home", name: "Home & Kitchen", productCount: 0 },
+          { _id: "books", name: "Books", productCount: 0 },
+        ]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedAddress = localStorage.getItem('userDeliveryAddress');
+    if (savedAddress) {
+      try {
+        const address = JSON.parse(savedAddress);
+        setDeliveryLocation(`${address.city}, ${address.area || ''}`);
+      } catch (e) {}
+    }
+  }, []);
+
+  const saveDeliveryLocation = (location) => {
+    setDeliveryLocation(location);
+    localStorage.setItem('deliveryLocation', location);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('deliveryLocationUpdated', { detail: { location } }));
+    }
+    setShowLocationDropdown(false);
   };
 
-  useEffect(() => { setMounted(true); }, []);
-
-  const getCategoryIcon = (categoryName) => {
-    const name = (categoryName || '').toLowerCase();
-    if (name.includes('electronic')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>);
-    if (name.includes('fashion') || name.includes('cloth')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>);
-    if (name.includes('home') || name.includes('kitchen')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>);
-    if (name.includes('beauty') || name.includes('makeup')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>);
-    if (name.includes('sport') || name.includes('fitnes')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9.172 9.172a4 4 0 015.656 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>);
-    if (name.includes('book')) return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>);
-    return (<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>);
+  const saveFullAddress = (addressData) => {
+    const fullAddress = `${addressData.address}, ${addressData.area}, ${addressData.city}`;
+    setDeliveryLocation(fullAddress);
+    localStorage.setItem('deliveryLocation', fullAddress);
+    localStorage.setItem('userDeliveryAddress', JSON.stringify(addressData));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('deliveryLocationUpdated', { detail: { location: fullAddress, addressData } }));
+    }
+    setShowAddressModal(false);
+    setAddressForm({
+      fullName: "", phone: "", address: "", city: "Faisalabad", area: "", landmark: "", isDefault: true
+    });
   };
-
-  const categoryColors = [
-    'from-blue-600 to-cyan-600', 'from-pink-600 to-rose-600', 'from-amber-600 to-orange-600',
-    'from-purple-600 to-violet-600', 'from-emerald-600 to-green-600', 'from-red-600 to-pink-600',
-    'from-indigo-600 to-blue-600', 'from-teal-600 to-emerald-600', 'from-orange-600 to-red-600',
-    'from-cyan-600 to-teal-600',
-  ];
 
   const fetchCartAndWishlist = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    const token = localStorage.getItem("token");
+    const isAuth = localStorage.getItem("isAuthenticated") === "true";
     if (!isAuth || !token) return;
-    
+
     try {
-      const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+      const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
       const [cartRes, wishlistRes] = await Promise.allSettled([
-        fetch(API.cart, { credentials: 'include', headers }),
-        fetch(API.wishlist, { credentials: 'include', headers }),
+        fetch(`${API_BASE}/cart`, { credentials: "include", headers }),
+        fetch(`${API_BASE}/wishlist`, { credentials: "include", headers }),
       ]);
-      
-      if (cartRes.status === 'fulfilled' && cartRes.value.ok) {
+
+      if (cartRes.status === "fulfilled" && cartRes.value.ok) {
         const cartData = await cartRes.value.json();
-        const cartItems = cartData.data?.cart?.items || cartData.data?.items || cartData.cart?.items || [];
-        if (Array.isArray(cartItems)) {
-          const total = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
-          setCartCount(total); 
-          cache.setCart(total);
-        }
+        const cartItems = cartData.data?.cart?.items || cartData.data?.items || [];
+        const total = Array.isArray(cartItems) ? cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
+        setCartCount(total);
       }
-      
-      if (wishlistRes.status === 'fulfilled' && wishlistRes.value.ok) {
+
+      if (wishlistRes.status === "fulfilled" && wishlistRes.value.ok) {
         const wishlistData = await wishlistRes.value.json();
         let items = wishlistData.data?.wishlist?.products || wishlistData.data?.wishlist || wishlistData.data || [];
         if (items && !Array.isArray(items) && items.products) items = items.products;
-        if (Array.isArray(items)) { 
-          setWishlistCount(items.length); 
-          cache.setWishlist(items.length); 
-        }
+        if (Array.isArray(items)) setWishlistCount(items.length);
       }
     } catch (error) {
-      console.error('❌ fetchCartAndWishlist error:', error);
+      console.error("Error fetching cart/wishlist:", error);
     }
-  }, [API.cart, API.wishlist]);
+  }, []);
 
   const fetchSearchSuggestions = async (query) => {
-    if (query.length < 2) { setSearchSuggestions([]); setShowSuggestions(false); return; }
+    if (query.length < 2) {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
     try {
-      const response = await fetch(`${API.products}?search=${encodeURIComponent(query)}&limit=5`, { credentials: 'include' });
+      let url = `${API_BASE}/products?search=${encodeURIComponent(query)}&limit=5`;
+      if (selectedSearchCategory !== "all") {
+        url += `&category=${selectedSearchCategory}`;
+      }
+      const response = await fetch(url, { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
         const products = data.data?.products || data.products || [];
@@ -603,30 +192,34 @@ export default function Navbar() {
   const handleSearchInput = (value) => {
     setSearchQuery(value);
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    if (value.length >= 2) searchTimeoutRef.current = setTimeout(() => fetchSearchSuggestions(value), 300);
-    else { setSearchSuggestions([]); setShowSuggestions(false); }
+    if (value.length >= 2) {
+      searchTimeoutRef.current = setTimeout(() => fetchSearchSuggestions(value), 300);
+    } else {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+    }
   };
 
   useEffect(() => {
     if (!mounted) return;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setScrollY(currentScrollY);
-      if (currentScrollY > prevScrollY.current && currentScrollY > 80) {
-        setScrollDirection('down'); setShowCategories(false); setShowSuggestions(false);
-      } else if (currentScrollY < prevScrollY.current) { setScrollDirection('up'); }
-      prevScrollY.current = currentScrollY;
+      if (currentScrollY > 80) {
+        setShowCategories(false);
+        setShowSuggestions(false);
+        setShowLocationDropdown(false);
+      }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [mounted]);
 
   useEffect(() => {
     if (!mounted) return;
     const checkAuth = () => {
-      const isAuth = localStorage.getItem('isAuthenticated') === 'true';
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('userData');
+      const isAuth = localStorage.getItem("isAuthenticated") === "true";
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("userData");
       setIsAuthenticated(isAuth && !!token);
       if (isAuth && token && userData) {
         try { setUser(JSON.parse(userData)); } catch (e) {}
@@ -634,24 +227,25 @@ export default function Navbar() {
       }
     };
     checkAuth();
-    const handleCartUpdate = () => { 
-      cache.setCart(null); 
-      cache.setWishlist(null); 
-      fetchCartAndWishlist(); 
-    };
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    window.addEventListener('wishlistUpdated', handleCartUpdate);
-    window.addEventListener('storage', (e) => { if (e.key === 'isAuthenticated' || e.key === 'userData') checkAuth(); });
+    
+    const handleCartUpdate = () => fetchCartAndWishlist();
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener("wishlistUpdated", handleCartUpdate);
+    window.addEventListener("storage", (e) => {
+      if (e.key === "isAuthenticated" || e.key === "userData") checkAuth();
+    });
+    
     return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-      window.removeEventListener('wishlistUpdated', handleCartUpdate);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+      window.removeEventListener("wishlistUpdated", handleCartUpdate);
     };
   }, [mounted, fetchCartAndWishlist]);
 
-  useEffect(() => { 
-    if (isOpen) setIsOpen(false);
-    if (showCategories) setShowCategories(false);
-    if (showSuggestions) setShowSuggestions(false);
+  useEffect(() => {
+    setIsOpen(false);
+    setShowCategories(false);
+    setShowSuggestions(false);
+    setShowLocationDropdown(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -659,238 +253,485 @@ export default function Navbar() {
     const handleClickOutside = (event) => {
       if (categoriesRef.current && !categoriesRef.current.contains(event.target)) setShowCategories(false);
       if (searchRef.current && !searchRef.current.contains(event.target)) setShowSuggestions(false);
+      if (locationRef.current && !locationRef.current.contains(event.target)) setShowLocationDropdown(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mounted]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery(''); setShowSuggestions(false); searchInputRef.current?.blur();
+    let url = `/products?search=${encodeURIComponent(searchQuery)}`;
+    if (selectedSearchCategory !== "all") {
+      url += `&category=${selectedSearchCategory}`;
+    }
+    router.push(url);
+    setSearchQuery("");
+    setShowSuggestions(false);
+    searchInputRef.current?.blur();
+  };
+
+  const handleSearchCategoryChange = (categoryId, categoryName) => {
+    console.log("Changing category to:", { categoryId, categoryName });
+    setSelectedSearchCategory(categoryId);
+    setSelectedCategoryName(categoryName);
+    setShowCategories(false);
+    // Refetch suggestions with new category
+    if (searchQuery.length >= 2) {
+      fetchSearchSuggestions(searchQuery);
     }
   };
 
-  const handleCategoryClick = (categoryId) => { router.push(`/products?category=${categoryId}`); setShowCategories(false); };
-  const handleAllProducts = () => { router.push('/products'); setShowCategories(false); };
-
   const handleLogout = async () => {
-    try { await fetch(API.auth.logout, { method: 'POST', credentials: 'include' }); } catch (error) {}
-    localStorage.removeItem('isAuthenticated'); localStorage.removeItem('userData'); localStorage.removeItem('token');
-    setIsAuthenticated(false); setUser(null); setCartCount(0); setWishlistCount(0);
-    cache.setCart(null); cache.setWishlist(null);
-    router.push('/');
+    try {
+      await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" });
+    } catch (error) {}
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    setUser(null);
+    setCartCount(0);
+    setWishlistCount(0);
+    router.push("/");
   };
-
-  const isScrolled = scrollY > 20;
 
   const getUserDisplayName = () => {
     if (user?.name) return user.name;
     if (user?.username) return user.username;
-    if (user?.email) return user.email.split('@')[0];
-    return 'User';
+    if (user?.email) return user.email.split("@")[0];
+    return "Account";
   };
 
   const getUserInitials = () => {
     const name = getUserDisplayName();
-    const parts = name.split(' ');
+    if (name === "Account") return "A";
+    const parts = name.split(" ");
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.substring(0, 2).toUpperCase();
   };
 
-  if (!mounted) {
-    return (
-      <div className="h-16 lg:h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 lg:w-11 lg:h-11 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl"></div>
-              <div className="w-32 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Debug: Log current state
+  useEffect(() => {
+    console.log("Current state:", {
+      selectedSearchCategory,
+      selectedCategoryName,
+      categoriesCount: categories.length,
+      categories: categories
+    });
+  }, [selectedSearchCategory, selectedCategoryName, categories]);
 
-  const formattedCategories = Array.isArray(categories) ? categories.map((cat, index) => ({
-    _id: cat._id || cat.id, name: cat.name || 'Uncategorized',
-    icon: getCategoryIcon(cat.name), color: categoryColors[index % categoryColors.length],
-    productCount: cat.productCount || 0,
-  })) : [];
+  if (!mounted) {
+    return <div className="h-20 bg-[#131921]" />;
+  }
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 transform ${scrollDirection === 'down' && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
-        <div className={`backdrop-blur-xl border-b transition-all duration-500 ${isScrolled || isOpen ? 'bg-white/90 dark:bg-gray-900/90 shadow-lg border-gray-200/50 dark:border-gray-800/50' : 'bg-white/80 dark:bg-gray-900/80 border-transparent'}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 lg:h-20">
-              <Link href="/" className="flex-shrink-0 mr-6 lg:mr-10"><AnimatedLogo /></Link>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#131921] text-white shadow-lg">
+        {/* Top Bar */}
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-[72px] gap-4">
+            
+            {/* LEFT - Logo & Delivery */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link href="/" className="hover:opacity-80 transition-opacity">
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 bg-gradient-to-br from-[#FFD814] to-[#FFA41C] rounded flex items-center justify-center shadow-md">
+                    <span className="text-[#131921] font-bold text-lg">S</span>
+                  </div>
+                  <span className="text-xl font-bold tracking-tight hidden sm:block">
+                    Swift<span className="text-[#FFD814]">Cart</span>
+                  </span>
+                </div>
+              </Link>
 
-              <div className="hidden lg:flex items-center gap-1 xl:gap-4">
-                <div className="relative" ref={categoriesRef}>
-                  <button onClick={() => setShowCategories(!showCategories)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${showCategories ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>Categories
-                  </button>
-                  {showCategories && (
-                    <div className="absolute top-full left-0 mt-2 w-[640px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                      {loadingCategories ? (
-                        <div className="p-8 text-center"><svg className="w-8 h-8 animate-spin text-violet-600 mx-auto" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>
-                      ) : formattedCategories.length === 0 ? (
-                        <div className="p-8 text-center"><div className="text-4xl mb-3">📂</div><p className="text-gray-500">No categories found</p></div>
-                      ) : (
-                        <>
-                          <div className="grid grid-cols-2 gap-1 p-3 max-h-[400px] overflow-y-auto">
-                            {formattedCategories.map((cat, idx) => (
-                              <button key={cat._id || idx} onClick={() => handleCategoryClick(cat._id)} className="group/item flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left w-full">
-                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg group-hover/item:scale-110 transition-transform flex-shrink-0`}>{cat.icon}</div>
-                                <div className="flex-1 min-w-0"><div className="text-sm font-semibold text-gray-900 dark:text-white truncate">{cat.name}</div><div className="text-xs text-gray-500 mt-0.5">{cat.productCount > 0 ? `${cat.productCount} products` : 'Browse products'}</div></div>
-                              </button>
-                            ))}
-                          </div>
-                          <div className="border-t p-4 bg-gray-50/50 dark:bg-gray-800/50">
-                            <button onClick={handleAllProducts} className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 transition">View All Products</button>
-                          </div>
-                        </>
-                      )}
+              {/* Delivery Location */}
+              <div className="relative" ref={locationRef}>
+                <button
+                  onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  className="flex items-center px-2 py-1 rounded hover:border hover:border-white/20 cursor-pointer transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <div className="text-left">
+                    <div className="text-xs text-gray-300">Deliver to</div>
+                    <div className="text-sm font-bold truncate max-w-[120px]">{deliveryLocation}</div>
+                  </div>
+                  <svg className="w-3 h-3 ml-1 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showLocationDropdown && (
+                  <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50">
+                    <div className="p-4 border-b">
+                      <h3 className="font-semibold text-gray-900">Choose your location</h3>
+                      <p className="text-xs text-gray-500 mt-1">Select a delivery location</p>
                     </div>
+                    <button
+                      onClick={() => { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(() => saveDeliveryLocation("Current Location")); } }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b"
+                    >
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                      <div className="text-left">
+                        <div className="text-sm font-medium text-gray-900">Use Current Location</div>
+                        <div className="text-xs text-gray-500">Detect your location</div>
+                      </div>
+                    </button>
+                    <div className="p-2">
+                      <div className="text-xs font-medium text-gray-500 px-3 py-2">POPULAR CITIES</div>
+                      {popularCities.map((city) => (
+                        <button key={city} onClick={() => saveDeliveryLocation(city)} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="border-t p-3">
+                      <button onClick={() => setShowAddressModal(true)} className="w-full text-center text-sm text-[#007185] hover:text-[#C45500] py-2 font-medium">
+                        + Add your full address
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* CENTER - Search Bar */}
+            <div ref={searchRef} className="flex-1 relative">
+              <form onSubmit={handleSearch} className="flex w-full group">
+                <div className="relative flex-1 flex group-hover:shadow-lg transition-all duration-300 rounded-md">
+                  {/* Categories Dropdown for Search */}
+                  <div className="relative" ref={categoriesRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowCategories(!showCategories)}
+                      className="h-12 px-4 bg-[#f3f3f3] text-gray-700 text-sm rounded-l-md border-r border-gray-300 focus:outline-none cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1 whitespace-nowrap min-w-[100px]"
+                    >
+                      {selectedCategoryName}
+                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {showCategories && (
+                      <div className="absolute top-full left-0 mt-0 w-56 bg-white rounded-b-md shadow-xl border z-50 max-h-80 overflow-y-auto">
+                        <button
+                          onClick={() => handleSearchCategoryChange("all", "All")}
+                          className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors border-b ${selectedSearchCategory === "all" ? "bg-gray-100 text-[#FFA41C] font-medium" : "text-gray-700"}`}
+                        >
+                          All Categories
+                        </button>
+                        {loadingCategories ? (
+                          <div className="p-4 text-center text-gray-500">
+                            <svg className="animate-spin h-5 w-5 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Loading...
+                          </div>
+                        ) : categories.length === 0 ? (
+                          <div className="p-4 text-center text-gray-500">No categories found</div>
+                        ) : (
+                          categories.map((cat) => {
+                            // Get the category ID and name safely
+                            const catId = cat._id || cat.id;
+                            const catName = cat.name || cat.title || "Unnamed";
+                            
+                            console.log("Rendering category:", { catId, catName, raw: cat });
+                            
+                            return (
+                              <button
+                                key={catId}
+                                onClick={() => handleSearchCategoryChange(catId, catName)}
+                                className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition-colors border-b ${selectedSearchCategory === catId ? "bg-gray-100 text-[#FFA41C] font-medium" : "text-gray-700"}`}
+                              >
+                                {catName}
+                                {cat.productCount > 0 && (
+                                  <span className="float-right text-xs text-gray-400">({cat.productCount})</span>
+                                )}
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchInput(e.target.value)}
+                    onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
+                    placeholder="Search products..."
+                    className="flex-1 h-12 px-5 text-gray-900 placeholder-gray-500 focus:outline-none text-base bg-white"
+                  />
+                  <button
+                    type="submit"
+                    className="px-8 h-12 bg-[#FFD814] hover:bg-[#F7CA00] text-[#131921] rounded-r-md transition-all flex items-center justify-center gap-2 font-medium"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="hidden lg:inline text-sm font-medium">Search</span>
+                  </button>
+                </div>
+              </form>
+              
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-b-lg shadow-xl border z-50 max-h-[400px] overflow-y-auto">
+                  {searchSuggestions.map((item, idx) => (
+                    <Link key={item._id} href={`/products/${item._id}`} className={`flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition-colors ${idx !== searchSuggestions.length - 1 ? 'border-b border-gray-100' : ''}`} onClick={() => { setShowSuggestions(false); setSearchQuery(""); }}>
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
+                          {item.images?.[0]?.url ? (
+                            <img src={item.images[0].url} alt={item.name} className="w-8 h-8 object-contain" />
+                          ) : (
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                          <div className="text-xs text-gray-500">{item.category?.name || "Product"}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-bold text-[#B12704]">₨ {(item.price * 280).toLocaleString()}</div>
+                    </Link>
+                  ))}
+                  <div className="p-2 border-t border-gray-100 bg-gray-50">
+                    <button onClick={() => { handleSearch(new Event('submit')); }} className="w-full text-center text-sm text-[#007185] hover:text-[#C45500] py-2">
+                      See all results for "{searchQuery}"
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT - Account and Cart */}
+            <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+              <div className="hidden lg:flex items-center gap-1 px-3 py-2 rounded hover:border hover:border-white/20 cursor-pointer transition-colors">
+                <span className="text-sm font-bold">🇵🇰</span>
+                <span className="text-xs">EN</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {!isAuthenticated ? (
+                <Link href="/signin" className="flex flex-col px-2 py-1 rounded hover:border hover:border-white/20 transition-colors">
+                  <span className="text-xs text-gray-300">Hello, Sign in</span>
+                  <span className="text-sm font-bold">Account & Lists</span>
+                </Link>
+              ) : (
+                <div className="relative group">
+                  <button className="flex flex-col px-2 py-1 rounded hover:border hover:border-white/20 transition-colors">
+                    <span className="text-xs text-gray-300">Hello, {getUserDisplayName().split(" ")[0]}</span>
+                    <span className="text-sm font-bold">Account & Lists</span>
+                  </button>
+                  <div className="absolute right-0 mt-3 w-80 bg-white rounded-md shadow-xl border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                    <div className="p-5 border-b">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#FFD814] to-[#FFA41C] rounded-full flex items-center justify-center text-[#131921] font-bold text-lg">{getUserInitials()}</div>
+                        <div><p className="font-semibold text-gray-900">{getUserDisplayName()}</p><p className="text-sm text-gray-500">{user?.email}</p></div>
+                      </div>
+                      <Link href="/profile" className="block w-full bg-[#FFD814] text-[#131921] text-center py-2.5 rounded-md font-semibold hover:bg-[#F7CA00]">Your Account</Link>
+                    </div>
+                    <div className="p-3">
+                      <Link href="/orders" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Your Orders</Link>
+                      <Link href="/wishlist" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>Your Wishlist <span className="ml-auto text-[#B12704]">({wishlistCount})</span></Link>
+                      <div className="border-t my-2"></div>
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg"><svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>Sign Out</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <Link href="/orders" className="hidden lg:flex flex-col px-2 py-1 rounded hover:border hover:border-white/20 transition-colors">
+                <span className="text-xs text-gray-300">Returns</span>
+                <span className="text-sm font-bold">& Orders</span>
+              </Link>
+
+              <Link href="/cart" className="flex items-center gap-2 px-2 py-1 rounded hover:border hover:border-white/20 transition-colors relative">
+                <div className="relative">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6M17 13l1.5 6M9 21h6M12 15v6" />
+                  </svg>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-[#FFD814] text-[#131921] text-xs font-bold rounded-full px-1.5 min-w-[20px] text-center">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
                   )}
                 </div>
-                <Link href="/products" className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${pathname === '/products' ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>All Products</Link>
-                <Link href="/products?sort=-discount" className="px-4 py-2.5 rounded-xl font-medium text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">Deals</Link>
-              </div>
+                <span className="text-sm font-bold hidden lg:inline">Cart</span>
+              </Link>
 
-              <div ref={searchRef} className="hidden lg:flex items-center flex-1 max-w-md lg:max-w-lg xl:max-w-xl mx-4 lg:mx-6 xl:mx-8 relative">
-                <form onSubmit={handleSearch} className="w-full">
-                  <div className="relative">
-                    <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    <input ref={searchInputRef} type="text" value={searchQuery} onChange={(e) => handleSearchInput(e.target.value)} onFocus={() => { if (searchSuggestions.length > 0) setShowSuggestions(true); }} placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800 border-2 border-transparent focus:border-violet-500 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 transition-all" />
-                  </div>
-                </form>
-                {showSuggestions && searchSuggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border overflow-hidden z-50">
-                    {searchSuggestions.map((item) => (
-                      <Link key={item._id} href={`/products/${item._id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all" onClick={() => { setShowSuggestions(false); setSearchQuery(''); }}>
-                        <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0"><svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div>
-                        <div className="flex-1 min-w-0"><div className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.name}</div></div>
-                        <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">PKR {((item.price || 0) * 280).toLocaleString()}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1 sm:gap-2 ml-4 lg:ml-6">
-                <Link href="/wishlist" className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hidden sm:block">
-                  <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                  {wishlistCount > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 bg-pink-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg px-1">{wishlistCount > 99 ? '99+' : wishlistCount}</span>}
-                </Link>
-                <Link href="/cart" className="relative p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                  <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                  {cartCount > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 bg-violet-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg px-1">{cartCount > 99 ? '99+' : cartCount}</span>}
-                </Link>
-                
-                {!isAuthenticated ? (
-                  <Link href="/signup" className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 bg-violet-600 text-white rounded-xl font-medium text-sm shadow-lg">Sign Up</Link>
-                ) : (
-                  <div className="hidden sm:block relative group">
-                    <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                      <div className="w-8 h-8 bg-violet-600 text-white rounded-lg flex items-center justify-center text-xs font-bold shadow-lg">{getUserInitials()}</div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block max-w-[100px] truncate">{getUserDisplayName()}</span>
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
-                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-50">
-                      <div className="p-2">
-                        <div className="px-4 py-3 border-b">
-                          <p className="text-sm font-semibold">{getUserDisplayName()}</p>
-                          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                        </div>
-                        <div className="py-1">
-                          {/* THIS IS YOUR ORDERS LINK - FIXED */}
-                          <Link 
-                            href="/orders" 
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 rounded-xl transition-all"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                            My Orders
-                          </Link>
-                          <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">Profile</Link>
-                        </div>
-                        <div className="border-t my-1"></div>
-                        <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                  {isOpen ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                  : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>}
-                </button>
-              </div>
+              <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 rounded hover:bg-white/10 transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
 
-        {isOpen && (
-          <>
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm lg:hidden z-40" onClick={() => setIsOpen(false)} />
-            <div className="lg:hidden fixed top-0 right-0 w-full max-w-sm bg-white dark:bg-gray-900 shadow-2xl z-50 h-full animate-in slide-in-from-right duration-300">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
-                <button onClick={() => setIsOpen(false)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+        {/* Secondary Navigation Bar */}
+        <div className="bg-[#232F3E] border-t border-white/10">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-6 h-10 text-sm overflow-x-auto scrollbar-hide">
+              <Link href="/products" className="whitespace-nowrap hover:text-gray-300 transition-colors">Today's Deals</Link>
+              <Link href="/products?sort=-soldCount" className="whitespace-nowrap hover:text-gray-300 transition-colors">Best Sellers</Link>
+              <Link href="/products?sort=-createdAt" className="whitespace-nowrap hover:text-gray-300 transition-colors">New Releases</Link>
+              <Link href="/support" className="whitespace-nowrap hover:text-gray-300 transition-colors">Customer Service</Link>
+              <Link href="/gift-cards" className="whitespace-nowrap hover:text-gray-300 transition-colors">Gift Cards</Link>
+              <Link href="/products?category=electronics" className="whitespace-nowrap hover:text-gray-300 transition-colors">Electronics</Link>
+              <Link href="/products?category=fashion" className="whitespace-nowrap hover:text-gray-300 transition-colors">Fashion</Link>
+              <Link href="/products?category=home" className="whitespace-nowrap hover:text-gray-300 transition-colors">Home & Kitchen</Link>
+              <Link href="/products?category=books" className="whitespace-nowrap hover:text-gray-300 transition-colors">Books</Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Address Modal */}
+      {showAddressModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowAddressModal(false)} />
+          <div className="relative bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white px-6 py-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">Add Delivery Address</h2>
+              <button onClick={() => setShowAddressModal(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" value={addressForm.fullName} onChange={(e) => setAddressForm({...addressForm, fullName: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFD814]" placeholder="Enter your full name" />
               </div>
-              <div className="overflow-y-auto p-4 space-y-1" style={{ height: 'calc(100% - 65px)' }}>
-                {isAuthenticated && user && (
-                  <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                    <div className="w-10 h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg">{getUserInitials()}</div>
-                    <div><p className="font-semibold">{getUserDisplayName()}</p><p className="text-xs text-gray-500 truncate">{user.email}</p></div>
-                  </div>
-                )}
-                <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase">Categories</div>
-                {loadingCategories ? <div className="flex justify-center py-8"><svg className="w-6 h-6 animate-spin text-violet-600" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></div>
-                : formattedCategories.map((cat) => (
-                  <button key={cat._id} onClick={() => { handleCategoryClick(cat._id); setIsOpen(false); }} className="flex items-center gap-3 w-full px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg`}>{cat.icon}</div>
-                    <span className="font-medium">{cat.name}</span>
-                  </button>
-                ))}
-                <div className="border-t my-2"></div>
-                <Link href="/products" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>All Products</Link>
-                <Link href="/deals" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Deals</Link>
-                <Link href="/wishlist" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Wishlist {wishlistCount > 0 && `(${wishlistCount})`}</Link>
-                <Link href="/cart" className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Cart {cartCount > 0 && `(${cartCount})`}</Link>
-                
-                {/* ORDERS LINK IN MOBILE MENU - FIXED */}
-                {isAuthenticated && (
-                  <Link href="/orders" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-600 rounded-xl transition-all" onClick={() => setIsOpen(false)}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    My Orders
-                  </Link>
-                )}
-                
-                <div className="border-t my-2"></div>
-                {!isAuthenticated ? (
-                  <Link href="/signup" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white bg-violet-600 rounded-xl shadow-lg" onClick={() => setIsOpen(false)}>Sign Up / Sign In</Link>
-                ) : (
-                  <>
-                    <Link href="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-all" onClick={() => setIsOpen(false)}>Profile</Link>
-                    <button onClick={() => { handleLogout(); setIsOpen(false); }} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out</button>
-                  </>
-                )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" value={addressForm.phone} onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="03XXXXXXXXX" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <select value={addressForm.city} onChange={(e) => setAddressForm({...addressForm, city: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                  {popularCities.map(city => <option key={city} value={city}>{city}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Area / Sector</label>
+                <input type="text" value={addressForm.area} onChange={(e) => setAddressForm({...addressForm, area: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="e.g., DHA Phase 2, Gulberg" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Complete Address</label>
+                <textarea value={addressForm.address} onChange={(e) => setAddressForm({...addressForm, address: e.target.value})} rows="3" className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="House/Flat No., Building Name, Street Name" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Landmark (Optional)</label>
+                <input type="text" value={addressForm.landmark} onChange={(e) => setAddressForm({...addressForm, landmark: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Near any landmark" />
               </div>
             </div>
-          </>
-        )}
-      </nav>
-      <div className="h-16 lg:h-20" />
+            
+            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t flex gap-3">
+              <button onClick={() => setShowAddressModal(false)} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100">Cancel</button>
+              <button onClick={() => saveFullAddress(addressForm)} className="flex-1 px-4 py-2 bg-[#FFD814] text-[#131921] rounded-lg font-semibold hover:bg-[#F7CA00]">Save Address</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsOpen(false)} />
+          <div className="fixed top-0 left-0 w-80 h-full bg-white z-50 shadow-xl overflow-y-auto">
+            <div className="sticky top-0 bg-[#131921] text-white p-5 border-b">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#FFD814] to-[#FFA41C] rounded flex items-center justify-center">
+                    <span className="text-[#131921] font-bold">S</span>
+                  </div>
+                  <span className="font-bold text-lg">SwiftCart</span>
+                </div>
+                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-lg">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {!isAuthenticated && (
+                <Link href="/signin" className="flex items-center justify-between mt-5 p-4 bg-[#FFD814] text-[#131921] rounded-lg font-semibold">
+                  Sign in <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                </Link>
+              )}
+              {isAuthenticated && user && (
+                <div className="mt-5 p-4 bg-white/10 rounded-lg">
+                  <p className="font-semibold">Hello, {getUserDisplayName()}</p>
+                  <p className="text-sm text-gray-300 truncate">{user.email}</p>
+                </div>
+              )}
+            </div>
+            <div className="p-4">
+              <div className="font-semibold text-gray-600 text-xs uppercase tracking-wider mb-3">Shop by Category</div>
+              {loadingCategories ? (
+                <div className="py-6 text-center text-gray-500">Loading...</div>
+              ) : categories.length === 0 ? (
+                <div className="py-6 text-center text-gray-500">
+                  <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                  <p className="text-sm">No categories available</p>
+                </div>
+              ) : (
+                categories.map((cat) => {
+                  const catId = cat._id || cat.id;
+                  const catName = cat.name || cat.title || "Unnamed";
+                  return (
+                    <button key={catId} onClick={() => { router.push(`/products?category=${catId}`); setIsOpen(false); }} className="block w-full text-left py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                      {catName}
+                    </button>
+                  );
+                })
+              )}
+              <div className="border-t my-4"></div>
+              <Link href="/products" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>All Products</Link>
+              <Link href="/products?sort=-discount" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Today's Deals</Link>
+              <Link href="/products?sort=-soldCount" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Best Sellers</Link>
+              <Link href="/wishlist" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Wishlist ({wishlistCount})</Link>
+              <Link href="/cart" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Cart ({cartCount})</Link>
+              {isAuthenticated && (
+                <>
+                  <div className="border-t my-4"></div>
+                  <Link href="/orders" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Your Orders</Link>
+                  <Link href="/profile" className="block py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setIsOpen(false)}>Profile</Link>
+                  <button onClick={() => { handleLogout(); setIsOpen(false); }} className="block w-full text-left py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg">Sign Out</button>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="h-[90px]" />
+      
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </>
   );
 }

@@ -1,8 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark Theme Base Colors */
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  
+  /* Primary Colors */
+  --color-deep-space: #0F172A;
+  --color-midnight: #1E293B;
+  --color-slate: #334155;
+  
+  /* Vibrant Accents - Your Existing Colors */
+  --color-aurora: #06B6D4;      /* Cyan - Trust & Clarity */
+  --color-coral: #FB7185;        /* Coral - Warmth & Urgency */
+  --color-amethyst: #A855F7;     /* Purple - Premium Feel */
+  --color-emerald: #10B981;       /* Green - Success & Nature */
+  
+  /* ========== NEW AMAZON-INSPIRED COLORS ========== */
+  /* Amazon Dark Theme */
+  --amazon-header: #131921;
+  --amazon-header-secondary: #232F3E;
+  --amazon-footer: #131921;
+  
+  /* Amazon Action Colors */
+  --amazon-cta: #FFD814;
+  --amazon-cta-hover: #F7CA00;
+  --amazon-buy: #FFA41C;
+  --amazon-buy-hover: #FA8900;
+  
+  /* Amazon Text Colors */
+  --amazon-text-primary: #0F1111;
+  --amazon-price: #B12704;
+  --amazon-deal: #CC0C39;
+  
+  /* Amazon UI Elements */
+  --amazon-star: #FFA41C;
+  --amazon-link: #007185;
+  --amazon-link-hover: #C45500;
+  --amazon-border: #DDD;
+  
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #06B6D4;
+  
+  /* Enhanced Gradients */
+  --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
+  --gradient-card: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  --gradient-accent: linear-gradient(90deg, #06B6D4 0%, #A855F7 100%);
+  --gradient-warm: linear-gradient(90deg, #FB7185 0%, #F97316 100%);
+  --gradient-success: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+  --gradient-amazon: linear-gradient(135deg, #FFD814 0%, #FFA41C 100%);
+  
+  /* Text Colors */
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  
+  /* Border Colors */
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  
+  /* Shadows */
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 12px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.3);
+  --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+  --shadow-glow-coral: 0 0 20px rgba(251, 113, 133, 0.3);
+  --shadow-amazon: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 @theme inline {
@@ -10,24 +77,139 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Custom Theme Colors */
+  --color-deep-space: #0F172A;
+  --color-midnight: #1E293B;
+  --color-aurora: #06B6D4;
+  --color-coral: #FB7185;
+  --color-amethyst: #A855F7;
+  --color-emerald: #10B981;
+  
+  /* Amazon Theme Colors */
+  --color-amazon-cta: #FFD814;
+  --color-amazon-buy: #FFA41C;
+  --color-amazon-price: #B12704;
+  --color-amazon-star: #FFA41C;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Light theme - more subtle, still modern */
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+    --color-deep-space: #F1F5F9;
+    --color-midnight: #E2E8F0;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --border-light: rgba(0, 0, 0, 0.08);
+    --border-medium: rgba(0, 0, 0, 0.12);
+    --gradient-hero: linear-gradient(135deg, #F8FAFC 0%, #E0E7FF 50%, #F8FAFC 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%);
   }
 }
 
 body {
-  background: var(--background);
+  background: var(--gradient-hero);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-/*  for hero section and component */
+::-webkit-scrollbar-track {
+  background: var(--color-midnight);
+  border-radius: 4px;
+}
 
+::-webkit-scrollbar-thumb {
+  background: var(--color-aurora);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-amethyst);
+}
+
+/* Smooth Transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Glassmorphism Utility */
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+}
+
+/* Gradient Text Utility */
+.gradient-text {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text-warm {
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text-amazon {
+  background: var(--gradient-amazon);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Glow Effects */
+.glow-cyan {
+  box-shadow: var(--shadow-glow);
+}
+
+.glow-purple {
+  box-shadow: var(--shadow-glow-purple);
+}
+
+.glow-coral {
+  box-shadow: var(--shadow-glow-coral);
+}
+
+/* Hover Transitions */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Animation Keyframes */
 @keyframes blob {
   0% {
     transform: translate(0px, 0px) scale(1);
@@ -43,14 +225,359 @@ body {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animation Classes */
 .animate-blob {
   animation: blob 7s infinite;
 }
 
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Animation Delays */
 .animation-delay-2000 {
   animation-delay: 2s;
 }
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Card Styles */
+.card {
+  background: var(--gradient-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--color-aurora);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Amazon Card Styles */
+.card-amazon {
+  background: var(--amazon-header);
+  border: 1px solid var(--amazon-border);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.card-amazon:hover {
+  box-shadow: var(--shadow-amazon);
+}
+
+/* Button Styles */
+.btn-primary {
+  background: var(--gradient-accent);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-deal {
+  background: var(--gradient-warm);
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-deal:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-coral);
+}
+
+/* Amazon Button Styles */
+.btn-amazon {
+  background: var(--amazon-cta);
+  color: var(--amazon-text-primary);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-amazon:hover {
+  background: var(--amazon-cta-hover);
+  transform: translateY(-1px);
+}
+
+.btn-amazon-buy {
+  background: var(--amazon-buy);
+  color: var(--amazon-text-primary);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-amazon-buy:hover {
+  background: var(--amazon-buy-hover);
+}
+
+/* Loading Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-midnight) 25%, var(--color-slate) 50%, var(--color-midnight) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+/* Price Styles */
+.price-original {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-size: 0.875rem;
+}
+
+.price-sale {
+  color: var(--color-coral);
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.price-amazon {
+  color: var(--amazon-price);
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+.price-deal {
+  color: var(--amazon-deal);
+  font-weight: bold;
+}
+
+/* Rating Stars */
+.rating-stars {
+  color: var(--amazon-star);
+  display: inline-flex;
+  gap: 0.125rem;
+}
+
+/* Link Styles */
+.link-amazon {
+  color: var(--amazon-link);
+  text-decoration: none;
+}
+
+.link-amazon:hover {
+  color: var(--amazon-link-hover);
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--color-aurora);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success/Error Toast Animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Focus Styles for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-aurora);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Add to your globals.css */
+.bg-gradient-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Amazon Header Styles */
+.header-amazon {
+  background-color: var(--amazon-header);
+  color: white;
+}
+
+.header-amazon-secondary {
+  background-color: var(--amazon-header-secondary);
+}
+
+/* Footer Styles */
+.footer-amazon {
+  background-color: var(--amazon-footer);
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Badge Styles */
+.badge-hot {
+  background: linear-gradient(135deg, var(--color-coral), #F97316);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-sale {
+  background: linear-gradient(135deg, var(--amazon-deal), var(--color-coral));
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-midnight);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
 }
